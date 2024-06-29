@@ -20,7 +20,7 @@ public class Product : BaseEntity
         : base()
     {
         this.TitleId = 0;
-        this.ManufacturerId = 0;
+        this.ManufacturerId = null;
         this.Description = string.Empty;
         this.UnitPrice = 0;
     }
@@ -33,7 +33,7 @@ public class Product : BaseEntity
     /// <param name="manufacturerId">The ID of the manufacturer.</param>
     /// <param name="description">The description of the product.</param>
     /// <param name="price">The price of the product.</param>
-    public Product(int id, int titleId, int manufacturerId, string description, decimal price)
+    public Product(int id, int titleId, int? manufacturerId, string description, decimal price)
         : base(id)
     {
         this.TitleId = titleId;
@@ -53,8 +53,7 @@ public class Product : BaseEntity
     /// Gets or sets the ID of the manufacturer.
     /// </summary>
     [Column("manufacturer_id"), ForeignKey(nameof(Manufacturer))]
-    [Required]
-    public int ManufacturerId { get; set; }
+    public int? ManufacturerId { get; set; }
 
     /// <summary>
     /// Gets or sets the unit price of the product.
