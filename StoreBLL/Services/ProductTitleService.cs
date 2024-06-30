@@ -9,35 +9,77 @@ using StoreBLL.Models;
 using StoreDAL.Data;
 using StoreDAL.Entities;
 using StoreDAL.Interfaces;
+using StoreDAL.Repository;
 
+/// <summary>
+/// Provides services for managing product titles.
+/// </summary>
 public class ProductTitleService : ICrud
 {
+    private readonly IProductTitleRepository repository;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProductTitleService"/> class.
+    /// </summary>
+    /// <param name="context">The database context.</param>
     public ProductTitleService(StoreDbContext context)
     {
+        this.repository = new ProductTitleRepository(context);
     }
 
+    /// <summary>
+    /// Adds a new product title.
+    /// </summary>
+    /// <param name="model">The product title model to add.</param>
     public void Add(AbstractModel model)
     {
-        throw new NotImplementedException();
+        var productTitleModel = (ProductTitleModel)model;
+        var productTitle = new ProductTitle(productTitleModel.Id, productTitleModel.Title, productTitleModel.CategoryId);
+        this.repository.Add(productTitle);
     }
 
+    /// <summary>
+    /// Deletes a product title by ID.
+    /// </summary>
+    /// <param name="modelId">The ID of the product title to delete.</param>
     public void Delete(int modelId)
     {
-        throw new NotImplementedException();
+        this.repository.DeleteById(modelId);
     }
 
+    /// <summary>
+    /// Gets all product titles.
+    /// </summary>
+    /// <returns>A collection of product title models.</returns>
     public IEnumerable<AbstractModel> GetAll()
     {
-        throw new NotImplementedException();
+        return this.repository.GetAll().Select(productTitle => new ProductTitleModel(productTitle.Id, productTitle.Title, productTitle.CategoryId));
     }
 
+    /// <summary>
+    /// Gets a product title by ID.
+    /// </summary>
+    /// <param name="id">The ID of the product title to retrieve.</param>
+    /// <returns>The product title model.</returns>
     public AbstractModel GetById(int id)
     {
-        throw new NotImplementedException();
+        var productTitle = this.repository.GetById(id);
+        return new ProductTitleModel(productTitle.Id, productTitle.Title, productTitle.CategoryId);
     }
 
+    /// <summary>
+    /// Updates a product title.
+    /// </summary>
+    /// <param name="model">The product title model to update.</param>
     public void Update(AbstractModel model)
     {
-        throw new NotImplementedException();
+        var productTitleModel = (ProductTitleModel)model;
+        var productTitle = this.repository.GetById(productTitleModel.Id);
+        if (productTitle != null)
+        {
+            productTitle.Title = productTitleModel.Title;
+            productTitle.CategoryId = productTitleModel.CategoryId;
+            this.repository.Update(productTitle);
+        }
     }
 }
