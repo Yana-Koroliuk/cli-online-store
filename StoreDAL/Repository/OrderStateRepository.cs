@@ -43,7 +43,8 @@ public class OrderStateRepository : AbstractRepository, IOrderStateRepository
     /// <param name="entity">The order state entsity to delete.</param>
     public void Delete(OrderState entity)
     {
-        throw new NotImplementedException();
+        this.dbSet.Remove(entity);
+        this.context.SaveChanges();
     }
 
     /// <summary>
@@ -77,7 +78,7 @@ public class OrderStateRepository : AbstractRepository, IOrderStateRepository
     /// <returns>An enumerable collection of order state entities.</returns>
     public IEnumerable<OrderState> GetAll(int pageNumber, int rowCount)
     {
-        throw new NotImplementedException();
+        return this.dbSet.Skip((pageNumber - 1) * rowCount).Take(rowCount).ToList();
     }
 
     /// <summary>
@@ -96,6 +97,7 @@ public class OrderStateRepository : AbstractRepository, IOrderStateRepository
     /// <param name="entity">The order state entity to update.</param>
     public void Update(OrderState entity)
     {
-        throw new NotImplementedException();
+        this.dbSet.Update(entity);
+        this.context.SaveChanges();
     }
 }
