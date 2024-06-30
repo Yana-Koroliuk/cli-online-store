@@ -4,10 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ConsoleApp1;
+using StoreBLL.Models;
+using StoreBLL.Services;
 using StoreDAL.Data;
 
 namespace ConsoleApp.Controllers
 {
+    /// <summary>
+    /// Provides methods for managing products.
+    /// </summary>
     public static class ProductController
     {
         private static StoreDbContext context = UserMenuController.Context;
@@ -32,9 +37,19 @@ namespace ConsoleApp.Controllers
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Shows all products.
+        /// </summary>
         public static void ShowAllProducts()
         {
-            throw new NotImplementedException();
+            var productService = new ProductService(context);
+            var products = productService.GetAll().OfType<ProductModel>();
+
+            Console.WriteLine("Products:");
+            foreach (var product in products)
+            {
+                Console.WriteLine(product);
+            }
         }
 
         public static void AddCategory()

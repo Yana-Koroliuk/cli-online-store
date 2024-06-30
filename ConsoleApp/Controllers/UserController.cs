@@ -13,13 +13,39 @@ using StoreDAL.Data;
 using StoreBLL.Models;
 using StoreBLL.Services;
 
+/// <summary>
+/// Provides methods for managing users.
+/// </summary>
 public static class UserController
 {
     private static StoreDbContext context = UserMenuController.Context;
 
+    /// <summary>
+    /// Registers a new user.
+    /// </summary>
     public static void AddUser()
     {
-        throw new NotImplementedException();
+        Console.WriteLine("Register new user:");
+        Console.WriteLine("Name: ");
+        var name = Console.ReadLine();
+        Console.WriteLine("Last Name: ");
+        var lastName = Console.ReadLine();
+        Console.WriteLine("Login: ");
+        var login = Console.ReadLine();
+        Console.WriteLine("Password: ");
+        var password = Console.ReadLine();
+
+        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(lastName) ||
+            string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
+        {
+            Console.WriteLine("Input data cannot be empty.");
+            return;
+        }
+
+        var userService = new UserService(context);
+        var newUser = new UserModel(0, name, lastName, login, password, (int)UserRoles.RegistredCustomer);
+        userService.Add(newUser);
+        Console.WriteLine("Registration successful.");
     }
 
     public static void UpdateUser()
@@ -57,6 +83,9 @@ public static class UserController
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Shows all user roles.
+    /// </summary>
     public static void ShowAllUserRoles()
     {
         var service = new UserRoleService(context);

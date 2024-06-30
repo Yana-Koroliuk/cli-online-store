@@ -1,10 +1,14 @@
 using ConsoleMenu;
 using ConsoleMenu.Builder;
+using StoreBLL.Services;
 using StoreDAL.Data;
 using StoreDAL.Data.InitDataFactory;
 
 namespace ConsoleApp1;
 
+/// <summary>
+/// Represents user roles in the system.
+/// </summary>
 public enum UserRoles
 {
     Guest,
@@ -12,6 +16,9 @@ public enum UserRoles
     RegistredCustomer,
 }
 
+/// <summary>
+/// Manages user menu navigation and actions.
+/// </summary>
 public static class UserMenuController
 {
     private static readonly Dictionary<UserRoles, Menu> RolesToMenu;
@@ -31,38 +38,55 @@ public static class UserMenuController
         RolesToMenu.Add(UserRoles.Administrator, new AdminMainMenu().Create(context));
     }
 
+    /// <summary>
+    /// Gets the database context.
+    /// </summary>
     public static StoreDbContext Context
     {
         get { return context; }
     }
 
+    /// <summary>
+    /// Handles user login.
+    /// </summary>
     public static void Login()
     {
         Console.WriteLine("Login: ");
         var login = Console.ReadLine();
         Console.WriteLine("Password: ");
         var password = Console.ReadLine();
-        if (login == "admin")
+        if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
         {
-            userId = 1;
-            userRole = UserRoles.Administrator;
+            Console.WriteLine("Login and password cannot be empty.");
+            return;
         }
 
-        if (login == "user")
+        try
         {
-            userId = 1;
-            userRole = UserRoles.RegistredCustomer;
+            var userService = new UserService(context);
+            var user = userService.Authenticate(login, password);
+            userId = user.Id;
+            userRole = (UserRoles)user.RoleId;
+            Console.WriteLine("Login successful.");
         }
-
-        // ToDo
+        catch (Exception)
+        {
+            Console.WriteLine("Invalid login or password.");
+        }
     }
 
+    /// <summary>
+    /// Handles user logout.
+    /// </summary>
     public static void Logout()
     {
         userId = 0;
         userRole = UserRoles.Guest;
     }
 
+    /// <summary>
+    /// Starts the user menu.
+    /// </summary>
     public static void Start()
     {
         ConsoleKey resKey;
