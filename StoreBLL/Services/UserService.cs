@@ -98,7 +98,11 @@ public class UserService : ICrud
             user.Name = userModel.Name;
             user.LastName = userModel.LastName;
             user.Login = userModel.Login;
-            user.Password = userModel.Password;
+            if (user.Password != userModel.Password)
+            {
+                user.Password = BCrypt.Net.BCrypt.HashPassword(userModel.Password);
+            }
+
             user.RoleId = userModel.RoleId;
             this.repository.Update(user);
         }

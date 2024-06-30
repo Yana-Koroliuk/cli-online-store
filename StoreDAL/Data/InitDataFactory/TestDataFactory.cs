@@ -166,10 +166,10 @@ public class TestDataFactory : AbstractDataFactory
     {
         return new[]
         {
-            new User(1, "John", "Doe", "john.doe", "password123", 2),
-            new User(2, "Jane", "Doe", "jane.doe", "password456", 2),
-            new User(3, "Admin", "User", "admin", "adminpass", 1),
-            new User(4, "Guest", "User", "guest", "guestpass", 3),
+            new User(1, "John", "Doe", "john.doe", "$2a$11$hkggypO4qZEopgDYwWIAo.POIb9E80igMtGIT6LQSotOMaZn1PtHe", 2),
+            new User(2, "Jane", "Doe", "jane.doe", "$2a$11$hkggypO4qZEopgDYwWIAo.POIb9E80igMtGIT6LQSotOMaZn1PtHe", 2),
+            new User(3, "Admin", "User", "admin", "$2a$11$hkggypO4qZEopgDYwWIAo.POIb9E80igMtGIT6LQSotOMaZn1PtHe", 1),
+            new User(4, "Guest", "User", "guest", "$2a$11$hkggypO4qZEopgDYwWIAo.POIb9E80igMtGIT6LQSotOMaZn1PtHe", 3),
         };
     }
 

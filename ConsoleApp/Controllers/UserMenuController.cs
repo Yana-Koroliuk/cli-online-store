@@ -47,6 +47,22 @@ public static class UserMenuController
     }
 
     /// <summary>
+    /// Gets the User ID.
+    /// </summary>
+    public static int UserId
+    {
+        get => userId;
+    }
+
+    /// <summary>
+    /// Gets the User Role.
+    /// </summary>
+    public static UserRoles UserRole
+    {
+        get => userRole;
+    }
+
+    /// <summary>
     /// Handles user login.
     /// </summary>
     public static void Login()

@@ -48,9 +48,37 @@ public static class UserController
         Console.WriteLine("Registration successful.");
     }
 
+    /// <summary>
+    /// Updates the personal information of the current user.
+    /// </summary>
     public static void UpdateUser()
     {
-        throw new NotImplementedException();
+        var userService = new UserService(context);
+        Console.WriteLine("Update personal information:");
+        var user = userService.GetById(UserMenuController.UserId);
+        var userModel = (UserModel)user;
+
+        Console.WriteLine($"Current Name: {userModel.Name}");
+        Console.WriteLine("New Name: ");
+        var newName = Console.ReadLine();
+        userModel.Name = string.IsNullOrEmpty(newName) ? userModel.Name : newName;
+
+        Console.WriteLine($"Current Last Name: {userModel.LastName}");
+        Console.WriteLine("New Last Name: ");
+        var newLastName = Console.ReadLine();
+        userModel.LastName = string.IsNullOrEmpty(newLastName) ? userModel.LastName : newLastName;
+
+        Console.WriteLine($"Current Login: {userModel.Login}");
+        Console.WriteLine("New Login: ");
+        var newLogin = Console.ReadLine();
+        userModel.Login = string.IsNullOrEmpty(newLogin) ? userModel.Login : newLogin;
+
+        Console.WriteLine("New Password: ");
+        var newPassword = Console.ReadLine();
+        userModel.Password = string.IsNullOrEmpty(newPassword) ? userModel.Password : newPassword;
+
+        userService.Update(userModel);
+        Console.WriteLine("Personal information updated successfully.");
     }
 
     public static void DeleteUser()

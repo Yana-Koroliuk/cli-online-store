@@ -112,7 +112,6 @@ namespace StoreDAL.Repository
         public void Update(User entity)
         {
             ArgumentNullException.ThrowIfNull(entity);
-            entity.Password = BCrypt.Net.BCrypt.HashPassword(entity.Password);
             this.dbSet.Update(entity);
             this.context.SaveChanges();
         }
