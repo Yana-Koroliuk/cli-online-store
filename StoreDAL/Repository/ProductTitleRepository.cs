@@ -89,7 +89,7 @@ namespace StoreDAL.Repository
         /// <returns>The product title entity with the specified identifier.</returns>
         public ProductTitle GetById(int id)
         {
-            return this.dbSet.Find(id) ?? throw new InvalidOperationException("Product title not found.");
+            return this.dbSet.Find(id) ?? throw new InvalidOperationException("Product title not found");
         }
 
         /// <summary>
