@@ -52,7 +52,7 @@ public class OrderStateService : ICrud
     /// <returns>A collection of order state models.</returns>
     public IEnumerable<AbstractModel> GetAll()
     {
-        return this.repository.GetAll().Select(x => new UserRoleModel(x.Id, x.StateName));
+        return this.repository.GetAll().Select(x => new OrderStateModel(x.Id, x.StateName));
     }
 
     /// <summary>

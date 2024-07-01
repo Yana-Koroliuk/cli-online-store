@@ -12,6 +12,7 @@ using ConsoleMenu;
 using StoreDAL.Data;
 using StoreBLL.Models;
 using StoreBLL.Services;
+using StoreDAL.Entities;
 
 /// <summary>
 /// Provides methods for managing users.
@@ -49,66 +50,77 @@ public static class UserController
     }
 
     /// <summary>
-    /// Updates the personal information of the current user.
+    /// Updates the personal information of a user.
     /// </summary>
     public static void UpdateUser()
     {
         var userService = new UserService(context);
-        Console.WriteLine("Update personal information:");
-        var user = userService.GetById(UserMenuController.UserId);
+        int userId;
+
+        if (UserMenuController.UserRole == UserRoles.Administrator)
+        {
+            Console.WriteLine("Enter the ID of the user to update:");
+            var userIdInput = Console.ReadLine();
+
+            if (!int.TryParse(userIdInput, out userId))
+            {
+                Console.WriteLine("Invalid user ID.");
+                return;
+            }
+        }
+        else
+        {
+            userId = UserMenuController.UserId;
+        }
+
+        var user = userService.GetById(userId);
+        if (user == null)
+        {
+            Console.WriteLine("User not found.");
+            return;
+        }
+
         var userModel = (UserModel)user;
 
-        Console.WriteLine($"Current Name: {userModel.Name}");
-        Console.WriteLine("New Name: ");
+        Console.WriteLine($"Current Name: {userModel.Name} ");
+        Console.WriteLine("New Name (leave empty to keep current): ");
         var newName = Console.ReadLine();
         userModel.Name = string.IsNullOrEmpty(newName) ? userModel.Name : newName;
 
         Console.WriteLine($"Current Last Name: {userModel.LastName}");
-        Console.WriteLine("New Last Name: ");
+        Console.WriteLine("New Last Name (leave empty to keep current): ");
         var newLastName = Console.ReadLine();
         userModel.LastName = string.IsNullOrEmpty(newLastName) ? userModel.LastName : newLastName;
 
         Console.WriteLine($"Current Login: {userModel.Login}");
-        Console.WriteLine("New Login: ");
+        Console.WriteLine("New Login (leave empty to keep current): ");
         var newLogin = Console.ReadLine();
         userModel.Login = string.IsNullOrEmpty(newLogin) ? userModel.Login : newLogin;
 
-        Console.WriteLine("New Password: ");
+        Console.WriteLine("New Password (leave empty to keep current): ");
         var newPassword = Console.ReadLine();
         userModel.Password = string.IsNullOrEmpty(newPassword) ? userModel.Password : newPassword;
 
         userService.Update(userModel);
-        Console.WriteLine("Personal information updated successfully.");
+        Console.WriteLine("User information updated successfully.");
     }
 
-    public static void DeleteUser()
-    {
-        throw new NotImplementedException();
-    }
-
-    public static void ShowUser()
-    {
-        throw new NotImplementedException();
-    }
-
+    /// <summary>
+    /// Displays all users.
+    /// </summary>
     public static void ShowAllUsers()
     {
-        throw new NotImplementedException();
-    }
+        var userService = new UserService(context);
+        var userRoleService = new UserRoleService(context);
+        var users = userService.GetAll().OfType<UserModel>();
 
-    public static void AddUserRole()
-    {
-        throw new NotImplementedException();
-    }
-
-    public static void UpdateUserRole()
-    {
-        throw new NotImplementedException();
-    }
-
-    public static void DeleteUserRole()
-    {
-        throw new NotImplementedException();
+        Console.WriteLine("Users:");
+        foreach (var user in users)
+        {
+            var userRole = (UserRoleModel)userRoleService.GetById(user.RoleId);
+            var roleName = userRole != null ? userRole.RoleName : "Unknown";
+            Console.WriteLine($"Id: {user.Id} Name: {user.Name} LastName: {user.LastName} Login: {user.Login} Role: {roleName}");
+        }
     }
 
     /// <summary>
@@ -119,45 +131,5 @@ public static class UserController
         var service = new UserRoleService(context);
         var menu = new ContextMenu(new AdminContextMenuHandler(service, InputHelper.ReadUserRoleModel), service.GetAll);
         menu.Run();
-    }
-
-    public static void AddProductTitle()
-    {
-        throw new NotImplementedException();
-    }
-
-    public static void UpdateProductTitle()
-    {
-        throw new NotImplementedException();
-    }
-
-    public static void DeleteProductTitle()
-    {
-        throw new NotImplementedException();
-    }
-
-    public static void ShowAllProductTitles()
-    {
-        throw new NotImplementedException();
-    }
-
-    public static void AddManufacturer()
-    {
-        throw new NotImplementedException();
-    }
-
-    public static void UpdateManufacturer()
-    {
-        throw new NotImplementedException();
-    }
-
-    public static void DeleteManufacturer()
-    {
-        throw new NotImplementedException();
-    }
-
-    public static void ShowAllManufacturers()
-    {
-        throw new NotImplementedException();
     }
 }

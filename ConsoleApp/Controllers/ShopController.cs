@@ -86,21 +86,6 @@ namespace ConsoleApp.Services
             Console.WriteLine("Order created successfully.");
         }
 
-        public static void UpdateOrder()
-        {
-            throw new NotImplementedException();
-        }
-
-        public static void DeleteOrder()
-        {
-            throw new NotImplementedException();
-        }
-
-        public static void ShowOrder()
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Shows all orders for the current user or all users if the user is an administrator.
         /// </summary>
@@ -202,29 +187,82 @@ namespace ConsoleApp.Services
             }
         }
 
-        public static void AddOrderDetails()
+        /// <summary>
+        /// Changes the status of an order by the administrator.
+        /// </summary>
+        public static void ChangeOrderStatus()
         {
-            throw new NotImplementedException();
-        }
+            var orderService = new CustomerOrderService(context);
+            var orderStateService = new OrderStateService(context);
 
-        public static void UpdateOrderDetails()
-        {
-            throw new NotImplementedException();
-        }
+            Console.WriteLine("Enter order ID to change status:");
+            var orderIdInput = Console.ReadLine();
 
-        public static void DeleteOrderDetails()
-        {
-            throw new NotImplementedException();
-        }
+            if (int.TryParse(orderIdInput, out var orderId))
+            {
+                try
+                {
+                    var order = (CustomerOrderModel)orderService.GetById(orderId);
+                    if (order == null)
+                    {
+                        Console.WriteLine("Order not found.");
+                        return;
+                    }
 
-        public static void ShowAllOrderDetails()
-        {
-            throw new NotImplementedException();
-        }
+                    var currentStatusId = order.OrderStateId;
+                    List<int> allowedStatusIds = new List<int>();
 
-        public static void ProcessOrder()
-        {
-            throw new NotImplementedException();
+                    var stateTransitions = new Dictionary<int, int>
+                    {
+                        { 1, 4 },
+                        { 4, 5 },
+                        { 5, 6 },
+                        { 6, 7 },
+                    };
+
+                    var allStates = orderStateService.GetAll().OfType<OrderStateModel>().ToList();
+                    var cancelledState = allStates.Find(os => os.StateName.Equals("Cancelled by administrator", StringComparison.OrdinalIgnoreCase));
+
+                    if (stateTransitions.TryGetValue(currentStatusId, out var nextStatusId))
+                    {
+                        allowedStatusIds.Add(nextStatusId);
+                    }
+
+                    if (cancelledState != null)
+                    {
+                        allowedStatusIds.Add(cancelledState.Id);
+                    }
+
+                    if (allowedStatusIds.Count == 0)
+                    {
+                        Console.WriteLine("No allowed states to transition to.");
+                        return;
+                    }
+
+                    Console.WriteLine("Select new status by name:");
+                    var newStatusName = Console.ReadLine();
+                    var newStatus = allStates.Find(os => os.StateName.Equals(newStatusName, StringComparison.OrdinalIgnoreCase));
+
+                    if (newStatus != null && allowedStatusIds.Contains(newStatus.Id))
+                    {
+                        order.OrderStateId = newStatus.Id;
+                        orderService.Update(order);
+                        Console.WriteLine("Order status updated successfully.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid status selection.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error updating order status: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid order ID.");
+            }
         }
 
         /// <summary>
