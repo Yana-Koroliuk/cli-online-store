@@ -10,9 +10,15 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ConsoleApp1
 {
+    /// <summary>
+    /// Main program entry point.
+    /// </summary>
     public static class Program
     {
-        // TODO: todo
+        /// <summary>
+        /// Main method to start the application.
+        /// </summary>
+        /// <param name="args">Command line arguments.</param>
         public static void Main(string[] args)
         {
             UserMenuController.Start();

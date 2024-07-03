@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using StoreDAL.Entities;
 
+/// <summary>
+/// Represents a repository interface for Category entities.
+/// </summary>
 public interface ICategoryRepository : IRepository<Category>
 {
 }
