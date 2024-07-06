@@ -21,10 +21,10 @@ public class UserRoleService : ICrud
     /// <summary>
     /// Initializes a new instance of the <see cref="UserRoleService"/> class.
     /// </summary>
-    /// <param name="context">The database context.</param>
-    public UserRoleService(StoreDbContext context)
+    /// <param name="repository">The userRole repository.</param>
+    public UserRoleService(IUserRoleRepository repository)
     {
-        this.repository = new UserRoleRepository(context);
+        this.repository = repository;
     }
 
     /// <summary>

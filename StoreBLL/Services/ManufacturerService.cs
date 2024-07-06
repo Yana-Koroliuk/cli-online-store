@@ -21,10 +21,10 @@ public class ManufacturerService : ICrud
     /// <summary>
     /// Initializes a new instance of the <see cref="ManufacturerService"/> class.
     /// </summary>
-    /// <param name="context">The database context.</param>
-    public ManufacturerService(StoreDbContext context)
+    /// <param name="repository">The manufacturer repository.</param>
+    public ManufacturerService(IManufacturerRepository repository)
     {
-        this.repository = new ManufacturerRepository(context);
+        this.repository = repository;
     }
 
     /// <summary>
@@ -65,6 +65,31 @@ public class ManufacturerService : ICrud
     {
         var manufacturer = this.repository.GetById(id);
         return new ManufacturerModel(manufacturer.Id, manufacturer.Name);
+    }
+
+    /// <summary>
+    /// Gets a manufacturer by its name.
+    /// </summary>
+    /// <param name="manufacturerName">The name of the manufacturer to retrieve.</param>
+    /// <returns>The manufacturer model.</returns>
+    public ManufacturerModel? GetByName(string manufacturerName)
+    {
+        var manufacturer = this.repository.GetAll()
+            .FirstOrDefault(m => m.Name.Equals(manufacturerName, StringComparison.OrdinalIgnoreCase));
+        return manufacturer == null ? null : new ManufacturerModel(manufacturer.Id, manufacturer.Name);
+    }
+
+    /// <summary>
+    /// Creates a new manufacturer.
+    /// </summary>
+    /// <param name="manufacturerName">The name of the manufacturer to create.</param>
+    /// <returns>The created manufacturer model.</returns>
+    public ManufacturerModel Create(string manufacturerName)
+    {
+        var newManufacturer = new Manufacturer(0, manufacturerName);
+        this.repository.Add(newManufacturer);
+        var createdManufacturer = this.repository.GetAll().Last();
+        return new ManufacturerModel(createdManufacturer.Id, createdManufacturer.Name);
     }
 
     /// <summary>

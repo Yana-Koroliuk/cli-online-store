@@ -21,10 +21,10 @@ public class ProductTitleService : ICrud
     /// <summary>
     /// Initializes a new instance of the <see cref="ProductTitleService"/> class.
     /// </summary>
-    /// <param name="context">The database context.</param>
-    public ProductTitleService(StoreDbContext context)
+    /// <param name="repository">The productTitle repository.</param>
+    public ProductTitleService(IProductTitleRepository repository)
     {
-        this.repository = new ProductTitleRepository(context);
+        this.repository = repository;
     }
 
     /// <summary>
@@ -65,6 +65,34 @@ public class ProductTitleService : ICrud
     {
         var productTitle = this.repository.GetById(id);
         return new ProductTitleModel(productTitle.Id, productTitle.Title, productTitle.CategoryId);
+    }
+
+    /// <summary>
+    /// Gets a product title by name and category ID.
+    /// </summary>
+    /// <param name="name">The name of the product title.</param>
+    /// <param name="categoryId">The ID of the category.</param>
+    /// <returns>The product title model if found, otherwise null.</returns>
+    public ProductTitleModel? GetByNameAndCategoryId(string name, int categoryId)
+    {
+        var productTitle = this.repository.GetAll()
+            .FirstOrDefault(pt => pt.Title.Equals(name, StringComparison.OrdinalIgnoreCase) && pt.CategoryId == categoryId);
+
+        return productTitle != null ? new ProductTitleModel(productTitle.Id, productTitle.Title, productTitle.CategoryId) : null;
+    }
+
+    /// <summary>
+    /// Creates a new product title.
+    /// </summary>
+    /// <param name="productName">The name of the product title.</param>
+    /// <param name="categoryId">The ID of the category to which the product title belongs.</param>
+    /// <returns>The created product title model.</returns>
+    public ProductTitleModel Create(string productName, int categoryId)
+    {
+        var productTitle = new ProductTitle(0, productName, categoryId);
+        this.repository.Add(productTitle);
+        var createdProductTitle = this.repository.GetAll().Last();
+        return new ProductTitleModel(createdProductTitle.Id, createdProductTitle.Title, createdProductTitle.CategoryId);
     }
 
     /// <summary>

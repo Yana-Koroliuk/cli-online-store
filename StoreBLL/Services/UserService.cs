@@ -21,10 +21,10 @@ public class UserService : ICrud
     /// <summary>
     /// Initializes a new instance of the <see cref="UserService"/> class.
     /// </summary>
-    /// <param name="context">The database context.</param>
-    public UserService(StoreDbContext context)
+    /// <param name="repository">The user repository.</param>
+    public UserService(IUserRepository repository)
     {
-        this.repository = new UserRepository(context);
+        this.repository = repository;
     }
 
     /// <summary>

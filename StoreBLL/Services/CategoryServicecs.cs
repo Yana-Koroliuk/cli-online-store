@@ -21,10 +21,10 @@ public class CategoryService : ICrud
     /// <summary>
     /// Initializes a new instance of the <see cref="CategoryService"/> class.
     /// </summary>
-    /// <param name="context">The database context.</param>
-    public CategoryService(StoreDbContext context)
+    /// <param name="repository">The category repository.</param>
+    public CategoryService(ICategoryRepository repository)
     {
-        this.repository = new CategoryRepository(context);
+        this.repository = repository;
     }
 
     /// <summary>
@@ -65,6 +65,31 @@ public class CategoryService : ICrud
     {
         var category = this.repository.GetById(id);
         return new CategoryModel(category.Id, category.Name);
+    }
+
+    /// <summary>
+    /// Gets a category by its name.
+    /// </summary>
+    /// <param name="categoryName">The name of the category to retrieve.</param>
+    /// <returns>The category model.</returns>
+    public CategoryModel? GetByName(string categoryName)
+    {
+        var category = this.repository.GetAll()
+            .FirstOrDefault(c => c.Name.Equals(categoryName, StringComparison.OrdinalIgnoreCase));
+        return category == null ? null : new CategoryModel(category.Id, category.Name);
+    }
+
+    /// <summary>
+    /// Creates a new category.
+    /// </summary>
+    /// <param name="categoryName">The name of the category to create.</param>
+    /// <returns>The created category model.</returns>
+    public CategoryModel Create(string categoryName)
+    {
+        var newCategory = new Category(0, categoryName);
+        this.repository.Add(newCategory);
+        var createdCategory = this.repository.GetAll().Last();
+        return new CategoryModel(createdCategory.Id, createdCategory.Name);
     }
 
     /// <summary>

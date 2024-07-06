@@ -21,10 +21,10 @@ public class CustomerOrderService : ICrud
     /// <summary>
     /// Initializes a new instance of the <see cref="CustomerOrderService"/> class.
     /// </summary>
-    /// <param name="context">The database context.</param>
-    public CustomerOrderService(StoreDbContext context)
+    /// <param name="repository">The customer repository.</param>
+    public CustomerOrderService(ICustomerOrderRepository repository)
     {
-        this.repository = new CustomerOrderRepository(context);
+        this.repository = repository;
     }
 
     /// <summary>

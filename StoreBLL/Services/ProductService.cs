@@ -21,10 +21,10 @@ public class ProductService : ICrud
     /// <summary>
     /// Initializes a new instance of the <see cref="ProductService"/> class.
     /// </summary>
-    /// <param name="context">The database context.</param>
-    public ProductService(StoreDbContext context)
+    /// <param name="repository">The product repository.</param>
+    public ProductService(IProductRepository repository)
     {
-        this.repository = new ProductRepository(context);
+        this.repository = repository;
     }
 
     /// <summary>

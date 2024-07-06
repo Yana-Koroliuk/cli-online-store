@@ -57,6 +57,6 @@ public class UserModel : AbstractModel
     /// <returns>A string representing the user model.</returns>
     public override string ToString()
     {
-        return $"Id:{this.Id} Name:{this.Name} LastName:{this.LastName} Login:{this.Login}";
+        return $"Id:{this.Id} Name:{this.Name} LastName:{this.LastName} Login:{this.Login} RoleId:{this.RoleId}";
     }
 }

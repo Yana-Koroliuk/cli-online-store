@@ -21,10 +21,10 @@ public class OrderStateService : ICrud
     /// <summary>
     /// Initializes a new instance of the <see cref="OrderStateService"/> class.
     /// </summary>
-    /// <param name="context">The database context.</param>
-    public OrderStateService(StoreDbContext context)
+    /// <param name="repository">The  orderState repository.</param>
+    public OrderStateService(IOrderStateRepository repository)
     {
-        this.repository = new OrderStateRepository(context);
+        this.repository = repository;
     }
 
     /// <summary>
@@ -64,6 +64,38 @@ public class OrderStateService : ICrud
     {
         var res = this.repository.GetById(id);
         return new OrderStateModel(res.Id, res.StateName);
+    }
+
+    /// <summary>
+    /// Retrieves the allowed to change status IDs for a given current status ID.
+    /// </summary>
+    /// <param name="currentStatusId">The current status ID.</param>
+    /// <returns>A list of allowed status IDs.</returns>
+    public List<int> GetChangeToStatusIds(int currentStatusId)
+    {
+        var allowedStatusIds = new List<int>();
+        var stateTransitions = new Dictionary<int, int>
+            {
+                { 1, 4 },
+                { 4, 5 },
+                { 5, 6 },
+                { 6, 7 },
+            };
+        var allStates = this.repository.GetAll().ToList();
+        var cancelledState = allStates.Find(os =>
+        os.StateName.Equals("Cancelled by administrator", StringComparison.OrdinalIgnoreCase));
+
+        if (stateTransitions.TryGetValue(currentStatusId, out var nextStatusId))
+        {
+            allowedStatusIds.Add(nextStatusId);
+        }
+
+        if (cancelledState != null && currentStatusId != 8)
+        {
+            allowedStatusIds.Add(cancelledState.Id);
+        }
+
+        return allowedStatusIds;
     }
 
     /// <summary>
