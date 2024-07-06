@@ -1,4 +1,5 @@
 ﻿namespace ConsoleApp.Handlers.ContextMenu;
+using ConsoleApp.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,6 +14,9 @@ using StoreBLL.Models;
 /// </summary>
 public class AdminContextMenuHandler : ContextMenuHandler
 {
+    private readonly ICrud service;
+    private readonly Func<AbstractModel> readModel;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="AdminContextMenuHandler"/> class.
     /// </summary>
@@ -21,6 +25,8 @@ public class AdminContextMenuHandler : ContextMenuHandler
     public AdminContextMenuHandler(ICrud service, Func<AbstractModel> readModel)
         : base(service, readModel)
     {
+        this.service = service;
+        this.readModel = readModel;
     }
 
     /// <summary>
@@ -28,7 +34,15 @@ public class AdminContextMenuHandler : ContextMenuHandler
     /// </summary>
     public void AddItem()
     {
-        this.service.Add(this.readModel());
+        try
+        {
+            var record = this.readModel();
+            this.service.Add(record);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -36,11 +50,15 @@ public class AdminContextMenuHandler : ContextMenuHandler
     /// </summary>
     public void RemoveItem()
     {
-        Console.WriteLine("Input record ID that will be removed");
-        var idInput = Console.ReadLine();
-        if (int.TryParse(idInput, out var id))
+        try
         {
+            var id = InputHelper.ReadIntInput("Input record ID that will be removed", "ID");
+            this.service.GetById(id);
             this.service.Delete(id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
         }
     }
 
@@ -49,12 +67,17 @@ public class AdminContextMenuHandler : ContextMenuHandler
     /// </summary>
     public void EditItem()
     {
-        Console.WriteLine("Input record ID that will be edited");
-        var idInput = Console.ReadLine();
-        if (int.TryParse(idInput, out var id))
+        try
         {
-            var record = this.readModel();
-            this.service.Update(record);
+            var id = InputHelper.ReadIntInput("Input record ID that will be edited", "ID");
+            Console.WriteLine("Edit the details:");
+            var updatedRecord = this.readModel();
+            updatedRecord.Id = id;
+            this.service.Update(updatedRecord);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
         }
     }
 

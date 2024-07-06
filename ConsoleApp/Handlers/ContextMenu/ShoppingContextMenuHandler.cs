@@ -24,6 +24,11 @@ namespace ConsoleApp.Handlers.ContextMenu
         {
         }
 
+        public static void CreateOrder()
+        {
+            ShopController.AddOrder();
+        }
+
         /// <summary>
         /// Generates the menu items.
         /// </summary>
@@ -32,8 +37,8 @@ namespace ConsoleApp.Handlers.ContextMenu
         {
             (ConsoleKey id, string caption, Action action)[] array =
                 {
+                     (ConsoleKey.A, "Create order", CreateOrder),
                      (ConsoleKey.V, "View Details", this.GetItemDetails),
-                     (ConsoleKey.A, "Add item to chart and create order", ShopController.AddOrder),
                 };
             return array;
         }

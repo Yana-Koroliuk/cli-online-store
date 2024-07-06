@@ -9,6 +9,7 @@ using ConsoleApp.Handlers.ContextMenu;
 using ConsoleApp.Helpers;
 using ConsoleApp1;
 using ConsoleMenu;
+using Microsoft.CodeAnalysis;
 using StoreBLL.Models;
 using StoreBLL.Services;
 using StoreDAL.Data;
@@ -21,53 +22,35 @@ namespace ConsoleApp.Services
     /// </summary>
     public static class ShopController
     {
-        private static StoreDbContext context = UserMenuController.Context;
+        private static CustomerOrderService customerOrderService = UserMenuController.GetService<CustomerOrderService>();
+        private static OrderDetailService orderDetailService = UserMenuController.GetService<OrderDetailService>();
+        private static ProductService productService = UserMenuController.GetService<ProductService>();
+        private static OrderStateService orderStateService = UserMenuController.GetService<OrderStateService>();
 
         /// <summary>
         /// Adds a new order for the current user.
         /// </summary>
         public static void AddOrder()
         {
-            var customerOrderService = new CustomerOrderService(context);
-            var orderDetailService = new OrderDetailService(context);
-            var productService = new ProductService(context);
-
-            Console.WriteLine("Create new order:");
-
             var orderDetails = new List<OrderDetailModel>();
-
+            Console.WriteLine("Create new order:");
             while (true)
             {
-                Console.WriteLine("Add product details to order:");
-                Console.WriteLine("Product ID: ");
-                var productIdInput = Console.ReadLine();
-                Console.WriteLine("Amount: ");
-                var amountInput = Console.ReadLine();
-
-                if (int.TryParse(productIdInput, out var productId) &&
-                    int.TryParse(amountInput, out var amount))
+                try
                 {
-                    try
-                    {
-                        var product = (ProductModel)productService.GetById(productId);
-                        var price = product.UnitPrice * amount;
-                        orderDetails.Add(new OrderDetailModel(0, 0, productId, price, amount));
-                    }
-                    catch
-                    {
-                        Console.WriteLine("Product not found. Please try again.");
-                        continue;
-                    }
+                    var orderDetail = InputHelper.ReadOrderDetailModel();
+                    var product = (ProductModel)productService.GetById(orderDetail.ProductId);
+                    var price = product.UnitPrice * orderDetail.ProductAmount;
+                    orderDetail.Price = price;
+                    orderDetails.Add(orderDetail);
                 }
-                else
+                catch (Exception ex)
                 {
-                    Console.WriteLine("Invalid input. Please try again.");
+                    Console.WriteLine($"Error: {ex.Message}");
                     continue;
                 }
 
-                Console.WriteLine("Add another product? (yes/no)");
-                var another = Console.ReadLine();
-                if (another != null && another != "yes")
+                if (InputHelper.ReadProductsInOrder() == 0)
                 {
                     break;
                 }
@@ -76,7 +59,6 @@ namespace ConsoleApp.Services
             var newOrder = new CustomerOrderModel(0, DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture), UserMenuController.UserId, 1);
             customerOrderService.Add(newOrder);
             newOrder = (CustomerOrderModel)customerOrderService.GetAll().Last();
-
             foreach (var detail in orderDetails)
             {
                 detail.OrderId = newOrder.Id;
@@ -87,29 +69,36 @@ namespace ConsoleApp.Services
         }
 
         /// <summary>
+        /// Adds a new order by the administrator.
+        /// </summary>
+        public static void AddOrderByAdmin()
+        {
+            Console.WriteLine("Create new order:");
+            var menu = new ContextMenu(new ShoppingContextMenuHandler(customerOrderService, InputHelper.ReadCustomerOrderModel).GenerateMenuItems, customerOrderService.GetAll);
+            menu.Run();
+        }
+
+        /// <summary>
         /// Shows all orders for the current user or all users if the user is an administrator.
         /// </summary>
         public static void ShowAllOrders()
         {
-            var customerOrderService = new CustomerOrderService(context);
-            var orderStateService = new OrderStateService(context);
-            List<CustomerOrderModel> orders;
-
             if (UserMenuController.UserRole == UserRoles.Administrator)
             {
-                orders = customerOrderService.GetAll().OfType<CustomerOrderModel>().ToList();
+                Console.WriteLine("All Orders:");
+                var menu = new ContextMenu(new OrderContextMenuHandler(customerOrderService, InputHelper.ReadCustomerOrderModel).GenerateMenuItems, customerOrderService.GetAll);
+                menu.Run();
             }
             else
             {
-                orders = customerOrderService.GetAll().OfType<CustomerOrderModel>().Where(o => o.UserId == UserMenuController.UserId).ToList();
-            }
-
-            Console.WriteLine(UserMenuController.UserRole == UserRoles.Administrator ? "All Orders:" : "Your Order History:");
-            foreach (var order in orders)
-            {
-                var orderState = (OrderStateModel)orderStateService.GetById(order.OrderStateId);
-                var statusName = orderState != null ? orderState.StateName : "Unknown Status";
-                Console.WriteLine($"Order ID: {order.Id}, Date: {order.OperationTime}, Status: {statusName}");
+                var orders = customerOrderService.GetAll().OfType<CustomerOrderModel>().Where(o => o.UserId == UserMenuController.UserId).ToList();
+                Console.WriteLine("Your Order History:");
+                foreach (var order in orders)
+                {
+                    var orderState = (OrderStateModel)orderStateService.GetById(order.OrderStateId);
+                    var statusName = orderState != null ? orderState.StateName : "Unknown Status";
+                    Console.WriteLine($"Order ID: {order.Id}, Date: {order.OperationTime}, Status: {statusName}");
+                }
             }
         }
 
@@ -118,35 +107,30 @@ namespace ConsoleApp.Services
         /// </summary>
         public static void ConfirmOrderDelivery()
         {
-            var orderService = new CustomerOrderService(context);
-            Console.WriteLine("Enter order ID to confirm delivery:");
-            var orderIdInput = Console.ReadLine();
-            if (int.TryParse(orderIdInput, out var orderId))
+            try
             {
-                try
+                var orderId = InputHelper.ReadCustomerOrderId();
+                var order = (CustomerOrderModel)customerOrderService.GetById(orderId);
+                if (order.UserId != UserMenuController.UserId)
                 {
-                    var order = (CustomerOrderModel)orderService.GetById(orderId);
-                    if (order.UserId != UserMenuController.UserId)
-                    {
-                        Console.WriteLine("You can only confirm delivery for your own orders.");
-                        return;
-                    }
+                    Console.WriteLine("You can only confirm delivery for your own orders.");
+                    return;
+                }
 
-                    if (order.OrderStateId == 7)
-                    {
-                        order.OrderStateId = 8;
-                        orderService.Update(order);
-                        Console.WriteLine("Order delivery confirmed successfully.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Order cannot be confirmed at this stage.");
-                    }
-                }
-                catch
+                if (order.OrderStateId == 7)
                 {
-                    Console.WriteLine("Order not found. Please try again.");
+                    order.OrderStateId = 8;
+                    customerOrderService.Update(order);
+                    Console.WriteLine("Order delivery confirmed successfully.");
                 }
+                else
+                {
+                    Console.WriteLine("Order cannot be confirmed at this stage.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
             }
         }
 
@@ -155,35 +139,30 @@ namespace ConsoleApp.Services
         /// </summary>
         public static void CancelOrder()
         {
-            var orderService = new CustomerOrderService(context);
-            Console.WriteLine("Enter order ID to cancel:");
-            var orderIdInput = Console.ReadLine();
-            if (int.TryParse(orderIdInput, out var orderId))
+            try
             {
-                try
+                var orderId = InputHelper.ReadCustomerOrderId();
+                var order = (CustomerOrderModel)customerOrderService.GetById(orderId);
+                if (order.UserId != UserMenuController.UserId)
                 {
-                    var order = (CustomerOrderModel)orderService.GetById(orderId);
-                    if (order.UserId != UserMenuController.UserId)
-                    {
-                        Console.WriteLine("You can only cancel your own orders.");
-                        return;
-                    }
+                    Console.WriteLine("You can only cancel your own orders.");
+                    return;
+                }
 
-                    if (order.OrderStateId == 1 || order.OrderStateId == 4 || order.OrderStateId == 7)
-                    {
-                        order.OrderStateId = 2;
-                        orderService.Update(order);
-                        Console.WriteLine("Order cancelled successfully.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Order cannot be cancelled at this stage.");
-                    }
-                }
-                catch
+                if (order.OrderStateId == 1 || order.OrderStateId == 4 || order.OrderStateId == 7)
                 {
-                    Console.WriteLine("Order not found. Please try again.");
+                    order.OrderStateId = 2;
+                    customerOrderService.Update(order);
+                    Console.WriteLine("Order cancelled successfully.");
                 }
+                else
+                {
+                    Console.WriteLine("Order cannot be cancelled at this stage.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
             }
         }
 
@@ -192,76 +171,36 @@ namespace ConsoleApp.Services
         /// </summary>
         public static void ChangeOrderStatus()
         {
-            var orderService = new CustomerOrderService(context);
-            var orderStateService = new OrderStateService(context);
-
-            Console.WriteLine("Enter order ID to change status:");
-            var orderIdInput = Console.ReadLine();
-
-            if (int.TryParse(orderIdInput, out var orderId))
+            try
             {
-                try
+                var orderId = InputHelper.ReadCustomerOrderId();
+                var order = (CustomerOrderModel)customerOrderService.GetById(orderId);
+                var allowedStatusIds = orderStateService.GetChangeToStatusIds(order.OrderStateId);
+
+                if (allowedStatusIds.Count == 0)
                 {
-                    var order = (CustomerOrderModel)orderService.GetById(orderId);
-                    if (order == null)
-                    {
-                        Console.WriteLine("Order not found.");
-                        return;
-                    }
-
-                    var currentStatusId = order.OrderStateId;
-                    List<int> allowedStatusIds = new List<int>();
-
-                    var stateTransitions = new Dictionary<int, int>
-                    {
-                        { 1, 4 },
-                        { 4, 5 },
-                        { 5, 6 },
-                        { 6, 7 },
-                    };
-
-                    var allStates = orderStateService.GetAll().OfType<OrderStateModel>().ToList();
-                    var cancelledState = allStates.Find(os => os.StateName.Equals("Cancelled by administrator", StringComparison.OrdinalIgnoreCase));
-
-                    if (stateTransitions.TryGetValue(currentStatusId, out var nextStatusId))
-                    {
-                        allowedStatusIds.Add(nextStatusId);
-                    }
-
-                    if (cancelledState != null)
-                    {
-                        allowedStatusIds.Add(cancelledState.Id);
-                    }
-
-                    if (allowedStatusIds.Count == 0)
-                    {
-                        Console.WriteLine("No allowed states to transition to.");
-                        return;
-                    }
-
-                    Console.WriteLine("Select new status by name:");
-                    var newStatusName = Console.ReadLine();
-                    var newStatus = allStates.Find(os => os.StateName.Equals(newStatusName, StringComparison.OrdinalIgnoreCase));
-
-                    if (newStatus != null && allowedStatusIds.Contains(newStatus.Id))
-                    {
-                        order.OrderStateId = newStatus.Id;
-                        orderService.Update(order);
-                        Console.WriteLine("Order status updated successfully.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid status selection.");
-                    }
+                    Console.WriteLine("No allowed states to transition to.");
+                    return;
                 }
-                catch (Exception ex)
+
+                var newStatusName = InputHelper.ReadStatusName();
+                var newStatus = orderStateService.GetAll().OfType<OrderStateModel>().FirstOrDefault(os =>
+                os.StateName.Equals(newStatusName, StringComparison.OrdinalIgnoreCase));
+
+                if (newStatus != null && allowedStatusIds.Contains(newStatus.Id))
                 {
-                    Console.WriteLine($"Error updating order status: {ex.Message}");
+                    order.OrderStateId = newStatus.Id;
+                    customerOrderService.Update(order);
+                    Console.WriteLine("Order status updated successfully.");
+                }
+                else
+                {
+                    Console.WriteLine("Invalid status selection.");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("Invalid order ID.");
+                Console.WriteLine($"Error: {ex.Message}");
             }
         }
 
@@ -270,8 +209,7 @@ namespace ConsoleApp.Services
         /// </summary>
         public static void ShowAllOrderStates()
         {
-            var service = new OrderStateService(context);
-            var menu = new ContextMenu(new AdminContextMenuHandler(service, InputHelper.ReadOrderStateModel), service.GetAll);
+            var menu = new ContextMenu(new AdminContextMenuHandler(orderStateService, InputHelper.ReadOrderStateModel), orderStateService.GetAll);
             menu.Run();
         }
     }

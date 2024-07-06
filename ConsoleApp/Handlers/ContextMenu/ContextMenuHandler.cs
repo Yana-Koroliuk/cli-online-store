@@ -5,16 +5,19 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ConsoleApp.Helpers;
+using ConsoleApp1;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using StoreBLL.Interfaces;
 using StoreBLL.Models;
+using StoreDAL.Entities;
 
 /// <summary>
 /// Abstract base class for context menu handlers.
 /// </summary>
 public abstract class ContextMenuHandler
 {
-    protected readonly ICrud service;
-    protected readonly Func<AbstractModel> readModel;
+    private readonly ICrud service;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ContextMenuHandler"/> class.
@@ -24,7 +27,6 @@ public abstract class ContextMenuHandler
     protected ContextMenuHandler(ICrud service, Func<AbstractModel> readModel)
     {
         this.service = service;
-        this.readModel = readModel;
     }
 
     /// <summary>
@@ -32,11 +34,14 @@ public abstract class ContextMenuHandler
     /// </summary>
     public void GetItemDetails()
     {
-        Console.WriteLine("Input record ID for more details");
-        var idInput = Console.ReadLine();
-        if (int.TryParse(idInput, out var id))
+        try
         {
+            var id = InputHelper.ReadIntInput("Input record ID for more details", "ID");
             Console.WriteLine(this.service.GetById(id));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
         }
     }
 

@@ -5,6 +5,8 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ConsoleApp.Helpers;
+using ConsoleApp.Services;
 using StoreBLL.Interfaces;
 using StoreBLL.Models;
 
@@ -13,6 +15,8 @@ using StoreBLL.Models;
 /// </summary>
 public class OrderContextMenuHandler : ContextMenuHandler
 {
+    private readonly ICrud service;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="OrderContextMenuHandler"/> class.
     /// </summary>
@@ -21,6 +25,15 @@ public class OrderContextMenuHandler : ContextMenuHandler
     public OrderContextMenuHandler(ICrud service, Func<AbstractModel> readModel)
         : base(service, readModel)
     {
+        this.service = service;
+    }
+
+    /// <summary>
+    /// Edits an item.
+    /// </summary>
+    public static void EditItem()
+    {
+        ShopController.ChangeOrderStatus();
     }
 
     /// <summary>
@@ -28,25 +41,15 @@ public class OrderContextMenuHandler : ContextMenuHandler
     /// </summary>
     public void RemoveItem()
     {
-        Console.WriteLine("Input record ID that will be removed");
-        var idInput = Console.ReadLine();
-        if (int.TryParse(idInput, out var id))
+        try
         {
+            var id = InputHelper.ReadIntInput("Input record ID that will be removed", "ID");
+            this.service.GetById(id);
             this.service.Delete(id);
         }
-    }
-
-    /// <summary>
-    /// Edits an item.
-    /// </summary>
-    public void EditItem()
-    {
-        Console.WriteLine("Input record ID that will be edited");
-        var idInput = Console.ReadLine();
-        if (int.TryParse(idInput, out var id))
+        catch (Exception ex)
         {
-            var record = this.readModel();
-            this.service.Update(record);
+            Console.WriteLine($"Error: {ex.Message}");
         }
     }
 
@@ -58,8 +61,9 @@ public class OrderContextMenuHandler : ContextMenuHandler
     {
         (ConsoleKey id, string caption, Action action)[] array =
             {
+                 (ConsoleKey.A, "Change order status", EditItem),
+                 (ConsoleKey.R, "Remove order", this.RemoveItem),
                  (ConsoleKey.V, "View Details", this.GetItemDetails),
-                 (ConsoleKey.V, "Change order status", this.EditItem),
             };
         return array;
     }

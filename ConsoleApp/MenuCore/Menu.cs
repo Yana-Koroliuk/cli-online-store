@@ -66,7 +66,7 @@ namespace ConsoleMenu
         /// </summary>
         /// <param name="updateItems">Indicates whether to update items display.</param>
         /// <returns>The key pressed.</returns>
-        public /*virtual*/ ConsoleKey RunOnce(ref bool updateItems)
+        public ConsoleKey RunOnce(ref bool updateItems)
         {
             ConsoleKeyInfo res;
             if (updateItems)
