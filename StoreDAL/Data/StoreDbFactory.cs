@@ -27,26 +27,26 @@ namespace StoreDAL.Data
         }
 
         /// <summary>
+        /// Creates the DbContextOptions for the StoreDbContext.
+        /// </summary>
+        /// <returns>The DbContextOptions instance.</returns>
+        public static DbContextOptions<StoreDbContext> CreateOptions()
+        {
+            return new DbContextOptionsBuilder<StoreDbContext>()
+                .UseSqlite(CreateConnectionString())
+                .Options;
+        }
+
+        /// <summary>
         /// Creates a new StoreDbContext instance.
         /// </summary>
         /// <returns>The StoreDbContext instance.</returns>
         public StoreDbContext CreateContext()
         {
-            var context = new StoreDbContext(this.CreateOptions(), this.factory);
+            var context = new StoreDbContext(CreateOptions(), this.factory);
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
             return context;
-        }
-
-        /// <summary>
-        /// Creates the DbContextOptions for the StoreDbContext.
-        /// </summary>
-        /// <returns>The DbContextOptions instance.</returns>
-        public DbContextOptions<StoreDbContext> CreateOptions()
-        {
-            return new DbContextOptionsBuilder<StoreDbContext>()
-                .UseSqlite(CreateConnectionString())
-                .Options;
         }
 
         /// <summary>

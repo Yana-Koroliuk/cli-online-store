@@ -34,7 +34,7 @@ public class OrderStateRepository : AbstractRepository, IOrderStateRepository
     public void Add(OrderState entity)
     {
         this.dbSet.Add(entity);
-        this.context.SaveChanges();
+        this.Context.SaveChanges();
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ public class OrderStateRepository : AbstractRepository, IOrderStateRepository
     public void Delete(OrderState entity)
     {
         this.dbSet.Remove(entity);
-        this.context.SaveChanges();
+        this.Context.SaveChanges();
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public class OrderStateRepository : AbstractRepository, IOrderStateRepository
         if (entity != null)
         {
             this.dbSet.Remove(entity);
-            this.context.SaveChanges();
+            this.Context.SaveChanges();
         }
     }
 
@@ -98,6 +98,6 @@ public class OrderStateRepository : AbstractRepository, IOrderStateRepository
     public void Update(OrderState entity)
     {
         this.dbSet.Update(entity);
-        this.context.SaveChanges();
+        this.Context.SaveChanges();
     }
 }

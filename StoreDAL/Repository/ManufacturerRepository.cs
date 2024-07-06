@@ -35,7 +35,7 @@ namespace StoreDAL.Repository
         public void Add(Manufacturer entity)
         {
             this.dbSet.Add(entity);
-            this.context.SaveChanges();
+            this.Context.SaveChanges();
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace StoreDAL.Repository
         public void Delete(Manufacturer entity)
         {
             this.dbSet.Remove(entity);
-            this.context.SaveChanges();
+            this.Context.SaveChanges();
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace StoreDAL.Repository
             if (entity != null)
             {
                 this.dbSet.Remove(entity);
-                this.context.SaveChanges();
+                this.Context.SaveChanges();
             }
         }
 
@@ -99,7 +99,7 @@ namespace StoreDAL.Repository
         public void Update(Manufacturer entity)
         {
             this.dbSet.Update(entity);
-            this.context.SaveChanges();
+            this.Context.SaveChanges();
         }
     }
 }

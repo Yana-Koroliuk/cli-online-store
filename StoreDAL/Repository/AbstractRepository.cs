@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using StoreDAL.Data;
+using StoreDAL.Entities;
 
 namespace StoreDAL.Repository
 {
@@ -15,7 +16,7 @@ namespace StoreDAL.Repository
         /// <summary>
         /// The database context used by the repository.
         /// </summary>
-        protected readonly StoreDbContext context;
+        private readonly StoreDbContext context;
         private bool disposed;
 
         /// <summary>
@@ -33,6 +34,11 @@ namespace StoreDAL.Repository
         ~AbstractRepository()
         {
             this.Dispose(false);
+        }
+
+        protected StoreDbContext Context
+        {
+            get => this.context;
         }
 
         /// <summary>

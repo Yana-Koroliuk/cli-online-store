@@ -34,7 +34,7 @@ public class UserRoleRepository : AbstractRepository, IUserRoleRepository
     public void Add(UserRole entity)
     {
         this.dbSet.Add(entity);
-        this.context.SaveChanges();
+        this.Context.SaveChanges();
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ public class UserRoleRepository : AbstractRepository, IUserRoleRepository
     public void Delete(UserRole entity)
     {
         this.dbSet.Remove(entity);
-        this.context.SaveChanges();
+        this.Context.SaveChanges();
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public class UserRoleRepository : AbstractRepository, IUserRoleRepository
         if (entity != null)
         {
             this.dbSet.Remove(entity);
-            this.context.SaveChanges();
+            this.Context.SaveChanges();
         }
     }
 
@@ -98,6 +98,6 @@ public class UserRoleRepository : AbstractRepository, IUserRoleRepository
     public void Update(UserRole entity)
     {
         this.dbSet.Update(entity);
-        this.context.SaveChanges();
+        this.Context.SaveChanges();
     }
 }

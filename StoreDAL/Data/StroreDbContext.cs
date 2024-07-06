@@ -78,6 +78,7 @@ public class StoreDbContext : DbContext
     /// <param name="modelBuilder">The model builder to be used for configuration.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        ArgumentNullException.ThrowIfNull(modelBuilder);
         modelBuilder.Entity<Category>().HasData(this.factory.GetCategoryData());
         modelBuilder.Entity<Manufacturer>().HasData(this.factory.GetManufacturerData());
         modelBuilder.Entity<OrderState>().HasData(this.factory.GetOrderStateData());

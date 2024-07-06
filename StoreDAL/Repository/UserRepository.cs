@@ -37,7 +37,7 @@ namespace StoreDAL.Repository
             ArgumentNullException.ThrowIfNull(entity);
             entity.Password = BCrypt.Net.BCrypt.HashPassword(entity.Password);
             this.dbSet.Add(entity);
-            this.context.SaveChanges();
+            this.Context.SaveChanges();
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace StoreDAL.Repository
         public void Delete(User entity)
         {
             this.dbSet.Remove(entity);
-            this.context.SaveChanges();
+            this.Context.SaveChanges();
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace StoreDAL.Repository
             if (entity != null)
             {
                 this.dbSet.Remove(entity);
-                this.context.SaveChanges();
+                this.Context.SaveChanges();
             }
         }
 
@@ -113,7 +113,7 @@ namespace StoreDAL.Repository
         {
             ArgumentNullException.ThrowIfNull(entity);
             this.dbSet.Update(entity);
-            this.context.SaveChanges();
+            this.Context.SaveChanges();
         }
     }
 }
