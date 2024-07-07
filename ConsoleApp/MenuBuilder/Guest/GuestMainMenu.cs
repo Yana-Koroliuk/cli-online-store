@@ -1,6 +1,7 @@
 using ConsoleApp.Controllers;
 using ConsoleApp.Services;
 using ConsoleApp1;
+using StoreBLL.Services;
 using StoreDAL.Data;
 
 namespace ConsoleMenu.Builder;
@@ -10,6 +11,11 @@ namespace ConsoleMenu.Builder;
 /// </summary>
 public class GuestMainMenu : AbstractMenuCreator
 {
+    private static UserService userService = UserMenuController.GetService<UserService>();
+    private static ProductService productService = UserMenuController.GetService<ProductService>();
+    private static ProductTitleService productTitleService = UserMenuController.GetService<ProductTitleService>();
+    private static ManufacturerService manufacturerService = UserMenuController.GetService<ManufacturerService>();
+
     /// <summary>
     /// Gets the menu items for guest users.
     /// </summary>
@@ -20,8 +26,8 @@ public class GuestMainMenu : AbstractMenuCreator
         (ConsoleKey id, string caption, Action action)[] array =
         {
             (ConsoleKey.F1, "Login", UserMenuController.Login),
-            (ConsoleKey.F2, "Show product list", ProductController.ShowAllProducts),
-            (ConsoleKey.F3, "Register", UserController.AddUser),
+            (ConsoleKey.F2, "Show product list", () => ProductController.ShowAllProducts(productService, productTitleService, manufacturerService)),
+            (ConsoleKey.F3, "Register", () => UserController.AddUser(userService)),
         };
         return array;
     }

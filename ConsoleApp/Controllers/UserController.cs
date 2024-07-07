@@ -20,19 +20,17 @@ using StoreBLL.Interfaces;
 /// </summary>
 public static class UserController
 {
-    private static UserService userService = UserMenuController.GetService<UserService>();
-    private static UserRoleService userRoleService = UserMenuController.GetService<UserRoleService>();
-
     /// <summary>
     /// Registers a new user.
     /// </summary>
-    public static void AddUser()
+    /// <param name="userService">The user service used to add the new user.</param>
+    public static void AddUser(ICrud userService)
     {
         Console.WriteLine("Register new user:");
         try
         {
             var newUser = InputHelper.ReadUserModel();
-            userService.Add(newUser);
+            userService?.Add(newUser);
             Console.WriteLine("Registration successful.");
         }
         catch (InvalidOperationException ex)
@@ -44,11 +42,13 @@ public static class UserController
     /// <summary>
     /// Updates the personal information of a user.
     /// </summary>
-    public static void UpdateUser()
+    /// <param name="userService">The user service used to update the user's information.</param>
+    public static void UpdateUser(ICrud userService)
     {
         try
         {
             int userId = UserMenuController.UserRole == UserRoles.Administrator ? InputHelper.ReadUserId() : UserMenuController.UserId;
+            userService = userService ?? throw new ArgumentNullException(nameof(userService));
             var user = userService.GetById(userId);
             var userModel = InputHelper.ReadUserModel((UserModel)user);
             userService.Update(userModel);
@@ -63,9 +63,11 @@ public static class UserController
     /// <summary>
     /// Displays all users.
     /// </summary>
-    public static void ShowAllUsers()
+    /// <param name="userService">The user service used to retrieve and display all users.</param>
+    public static void ShowAllUsers(ICrud userService)
     {
         Console.WriteLine("Users:");
+        userService = userService ?? throw new ArgumentNullException(nameof(userService));
         var menu = new ContextMenu(new AdminContextMenuHandler(userService, InputHelper.ReadUserModel), userService.GetAll);
         menu.Run();
     }
@@ -73,8 +75,10 @@ public static class UserController
     /// <summary>
     /// Shows all user roles.
     /// </summary>
-    public static void ShowAllUserRoles()
+    /// <param name="userRoleService">The user role service used to retrieve and display all user roles.</param>
+    public static void ShowAllUserRoles(ICrud userRoleService)
     {
+        userRoleService = userRoleService ?? throw new ArgumentNullException(nameof(userRoleService));
         var menu = new ContextMenu(new AdminContextMenuHandler(userRoleService, InputHelper.ReadUserRoleModel), userRoleService.GetAll);
         menu.Run();
     }

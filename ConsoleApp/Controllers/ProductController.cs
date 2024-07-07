@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using ConsoleApp.Helpers;
 using ConsoleApp1;
+using StoreBLL.Interfaces;
 using StoreBLL.Models;
 using StoreBLL.Services;
 using StoreDAL.Data;
@@ -18,18 +19,19 @@ namespace ConsoleApp.Controllers
     /// </summary>
     public static class ProductController
     {
-        private static ProductService productService = UserMenuController.GetService<ProductService>();
-        private static ProductTitleService productTitleService = UserMenuController.GetService<ProductTitleService>();
-        private static CategoryService categoryService = UserMenuController.GetService<CategoryService>();
-        private static ManufacturerService manufacturerService = UserMenuController.GetService<ManufacturerService>();
-
         /// <summary>
         /// Adds a new product.
         /// </summary>
-        public static void AddProduct()
+        /// <param name="productService">The service for managing products.</param>
+        /// <param name="productTitleService">The service for managing product titles.</param>
+        /// <param name="categoryService">The service for managing categories.</param>
+        public static void AddProduct(ICrud productService, ProductTitleService productTitleService, CategoryService categoryService)
         {
             try
             {
+                productService = productService ?? throw new ArgumentNullException(nameof(productService));
+                productTitleService = productTitleService ?? throw new ArgumentNullException(nameof(productTitleService));
+                categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
                 var (productName, categoryName, description, unitPrice) = InputHelper.ReadDataAddProduct();
                 var existingCategory = categoryService.GetByName(categoryName) ?? categoryService.Create(categoryName);
                 var productTitle = productTitleService.GetByNameAndCategoryId(productName, existingCategory.Id) ?? productTitleService.Create(productName, existingCategory.Id);
@@ -46,10 +48,18 @@ namespace ConsoleApp.Controllers
         /// <summary>
         /// Updates an existing product.
         /// </summary>
-        public static void UpdateProduct()
+        /// <param name="productService">The service for managing products.</param>
+        /// <param name="productTitleService">The service for managing product titles.</param>
+        /// <param name="categoryService">The service for managing categories.</param>
+        /// <param name="manufacturerService">The service for managing manufacturers.</param>
+        public static void UpdateProduct(ICrud productService, ProductTitleService productTitleService, CategoryService categoryService, ManufacturerService manufacturerService)
         {
             try
             {
+                productService = productService ?? throw new ArgumentNullException(nameof(productService));
+                productTitleService = productTitleService ?? throw new ArgumentNullException(nameof(productTitleService));
+                categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
+                manufacturerService = manufacturerService ?? throw new ArgumentNullException(nameof(manufacturerService));
                 var productId = InputHelper.ReadProductId();
                 var product = (ProductModel)productService.GetById(productId);
                 var productTitle = (ProductTitleModel)productTitleService.GetById(product.TitleId);
@@ -106,10 +116,16 @@ namespace ConsoleApp.Controllers
         /// <summary>
         /// Shows all products.
         /// </summary>
-        public static void ShowAllProducts()
+        /// <param name="productService">The service for managing products.</param>
+        /// <param name="productTitleService">The service for managing product titles.</param>
+        /// <param name="manufacturerService">The service for managing manufacturers.</param>
+        public static void ShowAllProducts(ICrud productService, ICrud productTitleService, ICrud manufacturerService)
         {
-            var products = productService.GetAll().OfType<ProductModel>();
+            productService = productService ?? throw new ArgumentNullException(nameof(productService));
+            productTitleService = productTitleService ?? throw new ArgumentNullException(nameof(productTitleService));
+            manufacturerService = manufacturerService ?? throw new ArgumentNullException(nameof(manufacturerService));
 
+            var products = productService.GetAll().OfType<ProductModel>();
             Console.WriteLine("Products:");
             foreach (var product in products)
             {

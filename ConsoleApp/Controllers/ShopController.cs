@@ -10,6 +10,7 @@ using ConsoleApp.Helpers;
 using ConsoleApp1;
 using ConsoleMenu;
 using Microsoft.CodeAnalysis;
+using StoreBLL.Interfaces;
 using StoreBLL.Models;
 using StoreBLL.Services;
 using StoreDAL.Data;
@@ -22,15 +23,13 @@ namespace ConsoleApp.Services
     /// </summary>
     public static class ShopController
     {
-        private static CustomerOrderService customerOrderService = UserMenuController.GetService<CustomerOrderService>();
-        private static OrderDetailService orderDetailService = UserMenuController.GetService<OrderDetailService>();
-        private static ProductService productService = UserMenuController.GetService<ProductService>();
-        private static OrderStateService orderStateService = UserMenuController.GetService<OrderStateService>();
-
         /// <summary>
         /// Adds a new order for the current user.
         /// </summary>
-        public static void AddOrder()
+        /// <param name="customerOrderService">Service for managing customer orders.</param>
+        /// <param name="productService">Service for managing products.</param>
+        /// <param name="orderDetailService">Service for managing order details.</param>>
+        public static void AddOrder(ICrud customerOrderService, ICrud productService, ICrud orderDetailService)
         {
             var orderDetails = new List<OrderDetailModel>();
             Console.WriteLine("Create new order:");
@@ -38,6 +37,9 @@ namespace ConsoleApp.Services
             {
                 try
                 {
+                    customerOrderService = customerOrderService ?? throw new ArgumentNullException(nameof(customerOrderService));
+                    productService = productService ?? throw new ArgumentNullException(nameof(productService));
+                    orderDetailService = orderDetailService ?? throw new ArgumentNullException(nameof(orderDetailService));
                     var orderDetail = InputHelper.ReadOrderDetailModel();
                     var product = (ProductModel)productService.GetById(orderDetail.ProductId);
                     var price = product.UnitPrice * orderDetail.ProductAmount;
@@ -71,9 +73,11 @@ namespace ConsoleApp.Services
         /// <summary>
         /// Adds a new order by the administrator.
         /// </summary>
-        public static void AddOrderByAdmin()
+        /// <param name="customerOrderService">Service for managing customer orders.</param>
+        public static void AddOrderByAdmin(ICrud customerOrderService)
         {
             Console.WriteLine("Create new order:");
+            customerOrderService = customerOrderService ?? throw new ArgumentNullException(nameof(customerOrderService));
             var menu = new ContextMenu(new ShoppingContextMenuHandler(customerOrderService, InputHelper.ReadCustomerOrderModel).GenerateMenuItems, customerOrderService.GetAll);
             menu.Run();
         }
@@ -81,8 +85,12 @@ namespace ConsoleApp.Services
         /// <summary>
         /// Shows all orders for the current user or all users if the user is an administrator.
         /// </summary>
-        public static void ShowAllOrders()
+        /// <param name="customerOrderService">Service for managing customer orders.</param>
+        /// <param name="orderStateService">Service for managing order states.</param>
+        public static void ShowAllOrders(ICrud customerOrderService, ICrud orderStateService)
         {
+            customerOrderService = customerOrderService ?? throw new ArgumentNullException(nameof(customerOrderService));
+            orderStateService = orderStateService ?? throw new ArgumentNullException(nameof(orderStateService));
             if (UserMenuController.UserRole == UserRoles.Administrator)
             {
                 Console.WriteLine("All Orders:");
@@ -105,11 +113,13 @@ namespace ConsoleApp.Services
         /// <summary>
         /// Confirms the delivery of an order by the user.
         /// </summary>
-        public static void ConfirmOrderDelivery()
+        /// <param name="customerOrderService">Service for managing customer orders.</param>
+        public static void ConfirmOrderDelivery(ICrud customerOrderService)
         {
             try
             {
                 var orderId = InputHelper.ReadCustomerOrderId();
+                customerOrderService = customerOrderService ?? throw new ArgumentNullException(nameof(customerOrderService));
                 var order = (CustomerOrderModel)customerOrderService.GetById(orderId);
                 if (order.UserId != UserMenuController.UserId)
                 {
@@ -137,11 +147,13 @@ namespace ConsoleApp.Services
         /// <summary>
         /// Cancels an order by the user.
         /// </summary>
-        public static void CancelOrder()
+        /// <param name="customerOrderService">Service for managing customer orders.</param>
+        public static void CancelOrder(ICrud customerOrderService)
         {
             try
             {
                 var orderId = InputHelper.ReadCustomerOrderId();
+                customerOrderService = customerOrderService ?? throw new ArgumentNullException(nameof(customerOrderService));
                 var order = (CustomerOrderModel)customerOrderService.GetById(orderId);
                 if (order.UserId != UserMenuController.UserId)
                 {
@@ -169,11 +181,15 @@ namespace ConsoleApp.Services
         /// <summary>
         /// Changes the status of an order by the administrator.
         /// </summary>
-        public static void ChangeOrderStatus()
+        /// <param name="customerOrderService">Service for managing customer orders.</param>
+        /// <param name="orderStateService">Service for managing order states.</param>
+        public static void ChangeOrderStatus(ICrud customerOrderService, OrderStateService orderStateService)
         {
             try
             {
                 var orderId = InputHelper.ReadCustomerOrderId();
+                customerOrderService = customerOrderService ?? throw new ArgumentNullException(nameof(customerOrderService));
+                orderStateService = orderStateService ?? throw new ArgumentNullException(nameof(orderStateService));
                 var order = (CustomerOrderModel)customerOrderService.GetById(orderId);
                 var allowedStatusIds = orderStateService.GetChangeToStatusIds(order.OrderStateId);
 
@@ -207,8 +223,10 @@ namespace ConsoleApp.Services
         /// <summary>
         /// Shows all possible order states.
         /// </summary>
-        public static void ShowAllOrderStates()
+        /// <param name="orderStateService">Service for managing order states.</param>
+        public static void ShowAllOrderStates(ICrud orderStateService)
         {
+            orderStateService = orderStateService ?? throw new ArgumentNullException(nameof(orderStateService));
             var menu = new ContextMenu(new AdminContextMenuHandler(orderStateService, InputHelper.ReadOrderStateModel), orderStateService.GetAll);
             menu.Run();
         }
