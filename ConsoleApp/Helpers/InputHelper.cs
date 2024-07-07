@@ -101,6 +101,17 @@ internal static class InputHelper
     }
 
     /// <summary>
+    /// Reads data for adding a new user from input.
+    /// </summary>
+    /// <returns>A tuple containing user data.</returns>
+    public static (string login, string password) ReadLoginData()
+    {
+        var login = ReadStringInput("Login: ");
+        var password = ReadStringInput("Password: ");
+        return (login, password);
+    }
+
+    /// <summary>
     /// Reads a CustomerOrderModel from input.
     /// </summary>
     /// <returns>The read CustomerOrderModel.</returns>

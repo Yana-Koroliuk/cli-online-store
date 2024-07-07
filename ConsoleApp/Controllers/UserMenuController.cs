@@ -1,3 +1,4 @@
+using ConsoleApp.Helpers;
 using ConsoleMenu;
 using ConsoleMenu.Builder;
 using StoreBLL.Interfaces;
@@ -90,27 +91,18 @@ namespace ConsoleApp1
         /// </summary>
         public static void Login()
         {
-            Console.WriteLine("Login: ");
-            var login = Console.ReadLine();
-            Console.WriteLine("Password: ");
-            var password = Console.ReadLine();
-            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
-            {
-                Console.WriteLine("Login and password cannot be empty.");
-                return;
-            }
-
             try
             {
+                var (login, password) = InputHelper.ReadLoginData();
                 var userService = GetService<UserService>();
                 var user = userService.Authenticate(login, password);
                 userId = user.Id;
                 userRole = (UserRoles)user.RoleId;
                 Console.WriteLine("Login successful.");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Console.WriteLine("Invalid login or password.");
+                Console.WriteLine($"Error: {ex.Message}");
             }
         }
 

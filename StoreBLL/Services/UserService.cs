@@ -74,7 +74,7 @@ public class UserService : ICrud
     /// <param name="password">The password of the user.</param>
     /// <returns>The authenticated user model.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the login or password is invalid.</exception>
-    public UserModel Authenticate(string login, string password)
+    public virtual UserModel Authenticate(string login, string password)
     {
         var user = this.repository.GetByLogin(login);
         if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password))

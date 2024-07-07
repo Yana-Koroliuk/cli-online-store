@@ -13,6 +13,7 @@ using StoreDAL.Data;
 using StoreBLL.Models;
 using StoreBLL.Services;
 using StoreDAL.Entities;
+using StoreBLL.Interfaces;
 
 /// <summary>
 /// Provides methods for managing users.
@@ -20,6 +21,7 @@ using StoreDAL.Entities;
 public static class UserController
 {
     private static UserService userService = UserMenuController.GetService<UserService>();
+    private static UserRoleService userRoleService = UserMenuController.GetService<UserRoleService>();
 
     /// <summary>
     /// Registers a new user.
@@ -64,8 +66,7 @@ public static class UserController
     public static void ShowAllUsers()
     {
         Console.WriteLine("Users:");
-        var service = UserMenuController.GetService<UserService>();
-        var menu = new ContextMenu(new AdminContextMenuHandler(service, InputHelper.ReadUserModel), service.GetAll);
+        var menu = new ContextMenu(new AdminContextMenuHandler(userService, InputHelper.ReadUserModel), userService.GetAll);
         menu.Run();
     }
 
@@ -74,8 +75,7 @@ public static class UserController
     /// </summary>
     public static void ShowAllUserRoles()
     {
-        var service = UserMenuController.GetService<UserRoleService>();
-        var menu = new ContextMenu(new AdminContextMenuHandler(service, InputHelper.ReadUserRoleModel), service.GetAll);
+        var menu = new ContextMenu(new AdminContextMenuHandler(userRoleService, InputHelper.ReadUserRoleModel), userRoleService.GetAll);
         menu.Run();
     }
 }
