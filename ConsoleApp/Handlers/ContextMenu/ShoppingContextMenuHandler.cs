@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ConsoleApp.Services;
+using ConsoleApp1;
 using StoreBLL.Interfaces;
 using StoreBLL.Models;
+using StoreBLL.Services;
 
 namespace ConsoleApp.Handlers.ContextMenu
 {
@@ -26,7 +28,10 @@ namespace ConsoleApp.Handlers.ContextMenu
 
         public static void CreateOrder()
         {
-            ShopController.AddOrder();
+            CustomerOrderService customerOrderService = UserMenuController.GetService<CustomerOrderService>();
+            OrderDetailService orderDetailService = UserMenuController.GetService<OrderDetailService>();
+            ProductService productService = UserMenuController.GetService<ProductService>();
+            ShopController.AddOrder(customerOrderService, productService, orderDetailService);
         }
 
         /// <summary>

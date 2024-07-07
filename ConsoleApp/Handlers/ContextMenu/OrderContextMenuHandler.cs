@@ -7,8 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using ConsoleApp.Helpers;
 using ConsoleApp.Services;
+using ConsoleApp1;
 using StoreBLL.Interfaces;
 using StoreBLL.Models;
+using StoreBLL.Services;
 
 /// <summary>
 /// Context menu handler for orders.
@@ -33,7 +35,9 @@ public class OrderContextMenuHandler : ContextMenuHandler
     /// </summary>
     public static void EditItem()
     {
-        ShopController.ChangeOrderStatus();
+        CustomerOrderService customerOrderService = UserMenuController.GetService<CustomerOrderService>();
+        OrderStateService orderStateService = UserMenuController.GetService<OrderStateService>();
+        ShopController.ChangeOrderStatus(customerOrderService, orderStateService);
     }
 
     /// <summary>
