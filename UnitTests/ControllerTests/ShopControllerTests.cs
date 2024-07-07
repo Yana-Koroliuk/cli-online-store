@@ -21,7 +21,7 @@ namespace UnitTests.ControllerTests
         private readonly Mock<ICrud> _mockCustomerOrderService;
         private readonly Mock<ICrud> _mockProductService;
         private readonly Mock<ICrud> _mockOrderDetailService;
-        private readonly Mock<ICrud> _mockOrderStateService;
+        private readonly Mock<IOrderStateService> _mockOrderStateService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ShopControllerTests"/> class.
@@ -31,7 +31,7 @@ namespace UnitTests.ControllerTests
             _mockCustomerOrderService = new Mock<ICrud>();
             _mockProductService = new Mock<ICrud>();
             _mockOrderDetailService = new Mock<ICrud>();
-            _mockOrderStateService = new Mock<ICrud>();
+            _mockOrderStateService = new Mock<IOrderStateService>();
         }
 
         /// <summary>
@@ -100,6 +100,31 @@ namespace UnitTests.ControllerTests
             ShopController.CancelOrder(_mockCustomerOrderService.Object);
 
             _mockCustomerOrderService.Verify(s => s.Update(It.IsAny<AbstractModel>()), Times.Never);
+        }
+
+        /// <summary>
+        /// Tests the <see cref="ShopController.ChangeOrderStatus(ICrud, IOrderStateService)"/> method to ensure it changes the order status successfully.
+        /// </summary>
+        [Fact]
+        public void ChangeOrderStatus_ShouldChangeOrderStatusSuccessfully()
+        {
+            var order = new CustomerOrderModel(1, "2023-01-01T12:00:00", 1, 1);
+            var allowedStatusIds = new List<int> { 2, 4 };
+            _mockCustomerOrderService.Setup(cos => cos.GetById(It.IsAny<int>())).Returns(order);
+            _mockOrderStateService.Setup(oss => oss.GetChangeToStatusIds(It.IsAny<int>())).Returns(allowedStatusIds);
+            _mockOrderStateService.Setup(oss => oss.GetAll()).Returns(new List<OrderStateModel>
+            {
+                new OrderStateModel(1, "New Order"),
+                new OrderStateModel(2, "Confirmed"),
+            });
+            _mockCustomerOrderService.Setup(cos => cos.Update(It.IsAny<CustomerOrderModel>())).Verifiable();
+
+            var input = new StringReader("1\nConfirmed\n");
+            Console.SetIn(input);
+
+            ShopController.ChangeOrderStatus(_mockCustomerOrderService.Object, _mockOrderStateService.Object);
+
+            _mockCustomerOrderService.Verify(cos => cos.Update(It.Is<CustomerOrderModel>(o => o.OrderStateId == 2)), Times.Once);
         }
     }
 }

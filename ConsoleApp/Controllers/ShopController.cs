@@ -183,7 +183,7 @@ namespace ConsoleApp.Services
         /// </summary>
         /// <param name="customerOrderService">Service for managing customer orders.</param>
         /// <param name="orderStateService">Service for managing order states.</param>
-        public static void ChangeOrderStatus(ICrud customerOrderService, OrderStateService orderStateService)
+        public static void ChangeOrderStatus(ICrud customerOrderService, IOrderStateService orderStateService)
         {
             try
             {
@@ -191,7 +191,7 @@ namespace ConsoleApp.Services
                 customerOrderService = customerOrderService ?? throw new ArgumentNullException(nameof(customerOrderService));
                 orderStateService = orderStateService ?? throw new ArgumentNullException(nameof(orderStateService));
                 var order = (CustomerOrderModel)customerOrderService.GetById(orderId);
-                var allowedStatusIds = orderStateService.GetChangeToStatusIds(order.OrderStateId);
+                var allowedStatusIds = orderStateService.GetChangeToStatusIds(order.OrderStateId).ToList();
 
                 if (allowedStatusIds.Count == 0)
                 {
@@ -224,7 +224,7 @@ namespace ConsoleApp.Services
         /// Shows all possible order states.
         /// </summary>
         /// <param name="orderStateService">Service for managing order states.</param>
-        public static void ShowAllOrderStates(ICrud orderStateService)
+        public static void ShowAllOrderStates(IOrderStateService orderStateService)
         {
             orderStateService = orderStateService ?? throw new ArgumentNullException(nameof(orderStateService));
             var menu = new ContextMenu(new AdminContextMenuHandler(orderStateService, InputHelper.ReadOrderStateModel), orderStateService.GetAll);

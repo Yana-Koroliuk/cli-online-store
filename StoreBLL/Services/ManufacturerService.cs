@@ -14,7 +14,7 @@ using StoreDAL.Repository;
 /// <summary>
 /// Provides services for managing manufacturers.
 /// </summary>
-public class ManufacturerService : ICrud
+public class ManufacturerService : IExtendedCrud
 {
     private readonly IManufacturerRepository repository;
 
@@ -70,23 +70,23 @@ public class ManufacturerService : ICrud
     /// <summary>
     /// Gets a manufacturer by its name.
     /// </summary>
-    /// <param name="manufacturerName">The name of the manufacturer to retrieve.</param>
+    /// <param name="name">The name of the manufacturer to retrieve.</param>
     /// <returns>The manufacturer model.</returns>
-    public ManufacturerModel? GetByName(string manufacturerName)
+    public AbstractModel? GetByName(string name)
     {
         var manufacturer = this.repository.GetAll()
-            .FirstOrDefault(m => m.Name.Equals(manufacturerName, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(m => m.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         return manufacturer == null ? null : new ManufacturerModel(manufacturer.Id, manufacturer.Name);
     }
 
     /// <summary>
     /// Creates a new manufacturer.
     /// </summary>
-    /// <param name="manufacturerName">The name of the manufacturer to create.</param>
+    /// <param name="name">The name of the manufacturer to create.</param>
     /// <returns>The created manufacturer model.</returns>
-    public ManufacturerModel Create(string manufacturerName)
+    public AbstractModel Create(string name)
     {
-        var newManufacturer = new Manufacturer(0, manufacturerName);
+        var newManufacturer = new Manufacturer(0, name);
         this.repository.Add(newManufacturer);
         var createdManufacturer = this.repository.GetAll().Last();
         return new ManufacturerModel(createdManufacturer.Id, createdManufacturer.Name);

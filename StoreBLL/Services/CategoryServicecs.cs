@@ -14,7 +14,7 @@ using StoreDAL.Repository;
 /// <summary>
 /// Provides services for managing categories.
 /// </summary>
-public class CategoryService : ICrud
+public class CategoryService : IExtendedCrud
 {
     private readonly ICategoryRepository repository;
 
@@ -70,23 +70,23 @@ public class CategoryService : ICrud
     /// <summary>
     /// Gets a category by its name.
     /// </summary>
-    /// <param name="categoryName">The name of the category to retrieve.</param>
+    /// <param name="name">The name of the category to retrieve.</param>
     /// <returns>The category model.</returns>
-    public CategoryModel? GetByName(string categoryName)
+    public AbstractModel? GetByName(string name)
     {
         var category = this.repository.GetAll()
-            .FirstOrDefault(c => c.Name.Equals(categoryName, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         return category == null ? null : new CategoryModel(category.Id, category.Name);
     }
 
     /// <summary>
     /// Creates a new category.
     /// </summary>
-    /// <param name="categoryName">The name of the category to create.</param>
+    /// <param name="name">The name of the category to create.</param>
     /// <returns>The created category model.</returns>
-    public CategoryModel Create(string categoryName)
+    public AbstractModel Create(string name)
     {
-        var newCategory = new Category(0, categoryName);
+        var newCategory = new Category(0, name);
         this.repository.Add(newCategory);
         var createdCategory = this.repository.GetAll().Last();
         return new CategoryModel(createdCategory.Id, createdCategory.Name);

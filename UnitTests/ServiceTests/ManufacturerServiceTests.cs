@@ -100,7 +100,7 @@ namespace UnitTests.ServiceTests
 
             Assert.NotNull(result);
             Assert.Equal(1, result.Id);
-            Assert.Equal("Test Manufacturer", result.Name);
+            Assert.Equal("Test Manufacturer", ((ManufacturerModel)result).Name);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace UnitTests.ServiceTests
             var result = manufacturerService.Create(manufacturerName);
 
             mockRepository.Verify(r => r.Add(It.Is<Manufacturer>(m => m.Name == manufacturerName)), Times.Once);
-            Assert.Equal(manufacturerName, result.Name);
+            Assert.Equal(manufacturerName, ((ManufacturerModel)result).Name);
         }
 
         /// <summary>

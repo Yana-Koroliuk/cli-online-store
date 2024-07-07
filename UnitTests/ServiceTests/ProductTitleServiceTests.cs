@@ -119,7 +119,7 @@ namespace UnitTests.ServiceTests
             var result = productTitleService.Create(productName, categoryId);
 
             mockRepository.Verify(r => r.Add(It.IsAny<ProductTitle>()), Times.Once);
-            Assert.Equal(productName, result.Title);
+            Assert.Equal(productName, ((ProductTitleModel)result).Title);
         }
 
         /// <summary>

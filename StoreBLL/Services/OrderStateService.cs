@@ -14,7 +14,7 @@ using StoreDAL.Repository;
 /// <summary>
 /// Provides services for managing order states.
 /// </summary>
-public class OrderStateService : ICrud
+public class OrderStateService : IOrderStateService
 {
     private readonly IOrderStateRepository repository;
 
@@ -71,7 +71,7 @@ public class OrderStateService : ICrud
     /// </summary>
     /// <param name="currentStatusId">The current status ID.</param>
     /// <returns>A list of allowed status IDs.</returns>
-    public List<int> GetChangeToStatusIds(int currentStatusId)
+    public IEnumerable<int> GetChangeToStatusIds(int currentStatusId)
     {
         var allowedStatusIds = new List<int>();
         var stateTransitions = new Dictionary<int, int>

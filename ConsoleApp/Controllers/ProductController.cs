@@ -25,7 +25,7 @@ namespace ConsoleApp.Controllers
         /// <param name="productService">The service for managing products.</param>
         /// <param name="productTitleService">The service for managing product titles.</param>
         /// <param name="categoryService">The service for managing categories.</param>
-        public static void AddProduct(ICrud productService, ProductTitleService productTitleService, CategoryService categoryService)
+        public static void AddProduct(ICrud productService, IProductTitleService productTitleService, IExtendedCrud categoryService)
         {
             try
             {
@@ -52,7 +52,7 @@ namespace ConsoleApp.Controllers
         /// <param name="productTitleService">The service for managing product titles.</param>
         /// <param name="categoryService">The service for managing categories.</param>
         /// <param name="manufacturerService">The service for managing manufacturers.</param>
-        public static void UpdateProduct(ICrud productService, ProductTitleService productTitleService, CategoryService categoryService, ManufacturerService manufacturerService)
+        public static void UpdateProduct(ICrud productService, IProductTitleService productTitleService, IExtendedCrud categoryService, IExtendedCrud manufacturerService)
         {
             try
             {
@@ -72,24 +72,24 @@ namespace ConsoleApp.Controllers
                 var (newName, newCategory, newManufacturer, newDescription, newUnitPrice) = InputHelper.ReadDataUpdateProduct();
                 if (!string.IsNullOrEmpty(newCategory))
                 {
-                    category = categoryService.GetByName(newCategory) ?? categoryService.Create(newCategory);
+                    category = (CategoryModel)(categoryService.GetByName(newCategory) ?? categoryService.Create(newCategory));
                 }
 
                 if (!string.IsNullOrEmpty(newName))
                 {
-                    productTitle = productTitleService.GetByNameAndCategoryId(newName, category.Id)
-                       ?? productTitleService.Create(newName, category.Id);
+                    productTitle = (ProductTitleModel)(productTitleService.GetByNameAndCategoryId(newName, category.Id)
+                       ?? productTitleService.Create(newName, category.Id));
                 }
                 else
                 {
-                    productTitle = productTitleService.GetByNameAndCategoryId(productTitle.Title, category.Id)
-                        ?? productTitleService.Create(productTitle.Title, category.Id);
+                    productTitle = (ProductTitleModel)(productTitleService.GetByNameAndCategoryId(productTitle.Title, category.Id)
+                        ?? productTitleService.Create(productTitle.Title, category.Id));
                 }
 
                 if (!string.IsNullOrEmpty(newManufacturer))
                 {
-                    manufacturer = manufacturerService.GetByName(newManufacturer)
-                        ?? manufacturerService.Create(newManufacturer);
+                    manufacturer = (ManufacturerModel)(manufacturerService.GetByName(newManufacturer)
+                        ?? manufacturerService.Create(newManufacturer));
                     product.ManufacturerId = manufacturer.Id;
                 }
 
@@ -119,7 +119,7 @@ namespace ConsoleApp.Controllers
         /// <param name="productService">The service for managing products.</param>
         /// <param name="productTitleService">The service for managing product titles.</param>
         /// <param name="manufacturerService">The service for managing manufacturers.</param>
-        public static void ShowAllProducts(ICrud productService, ICrud productTitleService, ICrud manufacturerService)
+        public static void ShowAllProducts(ICrud productService, IProductTitleService productTitleService, IExtendedCrud manufacturerService)
         {
             productService = productService ?? throw new ArgumentNullException(nameof(productService));
             productTitleService = productTitleService ?? throw new ArgumentNullException(nameof(productTitleService));

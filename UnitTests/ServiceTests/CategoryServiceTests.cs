@@ -104,7 +104,7 @@ namespace UnitTests.ServiceTests
             var result = categoryService.GetByName("Electronics");
 
             Assert.NotNull(result);
-            Assert.Equal("Electronics", result.Name);
+            Assert.Equal("Electronics", ((CategoryModel)result).Name);
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace UnitTests.ServiceTests
             var result = categoryService.Create(categoryName);
 
             mockRepository.Verify(r => r.Add(It.IsAny<Category>()), Times.Once);
-            Assert.Equal(categoryName, result.Name);
+            Assert.Equal(categoryName, ((CategoryModel)result).Name);
             Assert.Equal(1, result.Id);
         }
 

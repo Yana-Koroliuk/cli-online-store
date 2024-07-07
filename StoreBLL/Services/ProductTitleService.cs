@@ -14,7 +14,7 @@ using StoreDAL.Repository;
 /// <summary>
 /// Provides services for managing product titles.
 /// </summary>
-public class ProductTitleService : ICrud
+public class ProductTitleService : IProductTitleService
 {
     private readonly IProductTitleRepository repository;
 
@@ -84,12 +84,12 @@ public class ProductTitleService : ICrud
     /// <summary>
     /// Creates a new product title.
     /// </summary>
-    /// <param name="productName">The name of the product title.</param>
+    /// <param name="name">The name of the product title.</param>
     /// <param name="categoryId">The ID of the category to which the product title belongs.</param>
     /// <returns>The created product title model.</returns>
-    public ProductTitleModel Create(string productName, int categoryId)
+    public AbstractModel Create(string name, int categoryId)
     {
-        var productTitle = new ProductTitle(0, productName, categoryId);
+        var productTitle = new ProductTitle(0, name, categoryId);
         this.repository.Add(productTitle);
         var createdProductTitle = this.repository.GetAll().Last();
         return new ProductTitleModel(createdProductTitle.Id, createdProductTitle.Title, createdProductTitle.CategoryId);

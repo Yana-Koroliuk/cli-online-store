@@ -108,7 +108,7 @@ namespace UnitTests.ServiceTests
             };
             mockRepository.Setup(r => r.GetAll()).Returns(orderStates);
 
-            var result = orderStateService.GetChangeToStatusIds(1);
+            var result = orderStateService.GetChangeToStatusIds(1).ToList();
 
             Assert.Equal(2, result.Count);
             Assert.Contains(4, result);
